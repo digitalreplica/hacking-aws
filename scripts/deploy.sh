@@ -25,7 +25,6 @@ if [ -n "$1" ]; then
   DEPLOYMENT_NAME="$1"
 fi
 
-exit
 # Deploy Cloudformation templates
 echo "Deploying Cloudformation templates tagged with $DEPLOYMENT_NAME"
 python3 scripts/deploy.py --deployment "$DEPLOYMENT_NAME"
