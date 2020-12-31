@@ -1,0 +1,112 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Create a public s3 bucket and configure for website hosting.",
+  "Resources": {
+    "S3Website": {
+      "Type": "AWS::S3::Bucket",
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "BucketEncryption": {
+            "ServerSideEncryptionConfiguration": [
+                {
+                    "ServerSideEncryptionByDefault": {
+                        "SSEAlgorithm": "AES256"
+                    }
+                }
+            ]
+        },
+        "WebsiteConfiguration": {
+          "IndexDocument": "index.html",
+          "ErrorDocument": "error.html",
+          "RoutingRules": [
+            {
+              "RoutingRuleCondition": {
+                "KeyPrefixEquals": "redirect/http-localhost/"
+              },
+              "RedirectRule": {
+                "HostName": "localhost",
+                "Protocol": "http",
+                "ReplaceKeyPrefixWith": "",
+                "HttpRedirectCode": "301"
+              }
+            },
+            {
+              "RoutingRuleCondition": {
+                "KeyPrefixEquals": "redirect/https-localhost/"
+              },
+              "RedirectRule": {
+                "HostName": "localhost",
+                "Protocol": "https",
+                "ReplaceKeyPrefixWith": "",
+                "HttpRedirectCode": "301"
+              }
+            },
+            {
+              "RoutingRuleCondition": {
+                "KeyPrefixEquals": "redirect/http-awsmetadata/"
+              },
+              "RedirectRule": {
+                "HostName": "169.254.169.254",
+                "Protocol": "http",
+                "ReplaceKeyPrefixWith": "",
+                "HttpRedirectCode": "301"
+              }
+            },
+            {
+              "RoutingRuleCondition": {
+                "KeyPrefixEquals": "redirect/https-google/"
+              },
+              "RedirectRule": {
+                "HostName": "google.com",
+                "Protocol": "https",
+                "ReplaceKeyPrefixWith": "",
+                "HttpRedirectCode": "301"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "PublicBucketName": {
+      "Value": {
+        "Ref": "S3Website"
+      },
+      "Description": "S3 Website name"
+    },
+    "PublicBucketUrlHttp": {
+      "Value": {
+        "Fn::GetAtt": [
+          "S3Website",
+          "WebsiteURL"
+        ]
+      },
+      "Description": "S3 Website URL for website hosted on S3"
+    },
+    "RedirectLocalhostHttp": {
+      "Value": {
+        "Fn::Join" : [ "/", [ { "Fn::GetAtt": [ "S3Website", "WebsiteURL"] }, "redirect/http-localhost/" ] ]
+      },
+      "Description": "Url to redirect to localhost"
+    },
+    "RedirectLocalhostHttps": {
+      "Value": {
+        "Fn::Join" : [ "/", [ { "Fn::GetAtt": [ "S3Website", "WebsiteURL"] }, "redirect/https-localhost/" ] ]
+      },
+      "Description": "Url to redirect to localhost"
+    },
+    "RedirectAwsMetadataHttp": {
+      "Value": {
+        "Fn::Join" : [ "/", [ { "Fn::GetAtt": [ "S3Website", "WebsiteURL"] }, "redirect/http-awsmetadata/" ] ]
+      },
+      "Description": "Url to redirect to AWS Metadata service"
+    },
+    "RedirectGoogleHttps": {
+      "Value": {
+        "Fn::Join" : [ "/", [ { "Fn::GetAtt": [ "S3Website", "WebsiteURL"] }, "redirect/https-google/" ] ]
+      },
+      "Description": "Url to redirect to Google"
+    }
+  }
+}
