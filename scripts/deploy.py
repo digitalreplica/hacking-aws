@@ -40,7 +40,7 @@ class AwsDeploy:
             cloudformation_template = f.read()
 
         # Tag all stacks with the deployment tag
-        stack_name = "".format(
+        stack_name = "{}-{}".format(
             self.deployment,
             os.path.splitext(os.path.basename(cloudformation_template_filename))[0]
             )
