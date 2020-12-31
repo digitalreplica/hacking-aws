@@ -88,7 +88,7 @@ class AwsDeploy:
             # Show stack outputs
             stack_info = self.cloudformation_client.describe_stacks(StackName=stack_name)
             for output_info in stack_info.get('Stacks')[0].get('Outputs', []):
-                print("{}:{}".format(output_info.get('OutputKey'), output_info.get('OutputValue')) )
+                print("{} : {}".format(output_info.get('OutputKey'), output_info.get('OutputValue')) )
         print("")
 
 
