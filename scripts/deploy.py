@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import boto3
 import botocore
 import glob
@@ -16,7 +17,8 @@ CLOUDFORMATION_COMPLETE_STATUSES = [
 
 ##### Deploy Class #####
 class AwsDeploy:
-    def __init__(self):
+    def __init__(self, deployment):
+        self.deployment = deployment
         self.cloudformation_client = boto3.client('cloudformation')
 
     def deploy_stacks(self):
@@ -37,8 +39,13 @@ class AwsDeploy:
         with open(cloudformation_template_filename) as f:
             cloudformation_template = f.read()
 
+        # Tag all stacks with the deployment tag
+        stack_name = "".format(
+            self.deployment,
+            os.path.splitext(os.path.basename(cloudformation_template_filename))[0]
+            )
+
         # Find out if the stack exists
-        stack_name = os.path.splitext(os.path.basename(cloudformation_template_filename))[0]
         create_stack = False
         try:
             stack_info = self.cloudformation_client.describe_stacks(StackName=stack_name)
@@ -49,8 +56,11 @@ class AwsDeploy:
         if create_stack:
             print("Creating stack {}".format(stack_name))
             stack_info = self.cloudformation_client.create_stack(StackName=stack_name,
-                                                               TemplateBody=cloudformation_template,
-                                                               OnFailure='DELETE')
+                                                                TemplateBody=cloudformation_template,
+                                                                Tags=[
+                                                                 { 'Key': 'deployment', 'Value': 'string' },
+                                                                ],
+                                                                OnFailure='DELETE')
             stack_id = stack_info.get('StackId')
         else:
             print("Updating stack {}".format(stack_name))
@@ -83,5 +93,16 @@ class AwsDeploy:
 
 
 ##### Find Cloudformation files #####
-my_aws = AwsDeploy()
-my_aws.deploy_stacks()
+if __name__ == "__main__":
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Deploy Cloudformation templates')
+    parser.add_argument('-d', '--deployment', action='store', nargs='?', required=True, default="bugbounty",
+                        help='Unique name for this deployment')
+
+    args = parser.parse_args()
+
+    if args.deployment:
+        my_aws = AwsDeploy()
+        my_aws.deploy_stacks()
+    else:
+        parse.print_help()

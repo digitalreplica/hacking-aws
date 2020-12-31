@@ -12,6 +12,20 @@ else
   source venv/bin/activate
 fi
 
+# Get deployment name, or default
+DEPLOYMENT_NAME="bugbounty"
+if [ -n "$1" ]; then
+  if [ "$1" == "--help" ]; then
+    echo "Usage: $0 <deployment-tag>"
+    echo ""
+    echo "<deployment-tag>: unique name for this deployment."
+    echo ""
+    exit
+  fi
+  DEPLOYMENT_NAME="$1"
+fi
+
+exit
 # Deploy Cloudformation templates
-echo "Deploying Cloudformation templates"
-python3 scripts/deploy.py
+echo "Deploying Cloudformation templates tagged with $DEPLOYMENT_NAME"
+python3 scripts/deploy.py --deployment "$DEPLOYMENT_NAME"

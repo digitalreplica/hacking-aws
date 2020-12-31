@@ -3,10 +3,20 @@
 
 # Requirements
 * AWS account with Administrator privileges (ideally empty)
+* AWS CLI installed and configured
 * Python3
 
 # Installation
+## Using AWS CloudShell
+This is the easiest method, since everything is already configured.
 
+* Open your AWS Console. Search for "CloudShell", or select it from the Services dropdown. Click to open a shell.
+* Run
+```
+git clone https://github.com/digitalreplica/hacking-aws.git
+cd hacking-aws/
+scripts/deploy.sh
+```
 
 # Arsenal
 
