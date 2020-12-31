@@ -102,7 +102,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.deployment:
-        my_aws = AwsDeploy()
+        my_aws = AwsDeploy(args.deployment)
         my_aws.deploy_stacks()
     else:
         parse.print_help()
