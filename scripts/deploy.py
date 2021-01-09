@@ -3,6 +3,7 @@ import argparse
 import boto3
 import botocore
 import glob
+import json
 from pathlib import Path
 import os
 import time
@@ -10,7 +11,8 @@ import time
 ##### Configuration #####
 CONFIG = {
     "cloudformation_files": "cloudformation/*.json",
-    "public_website_dir": "files/s3-public-website"
+    "public_website_dir": "files/s3-public-website",
+    "output_save_location": "stack_output.json"
 }
 CLOUDFORMATION_COMPLETE_STATUSES = [
     "CREATE_COMPLETE",
@@ -115,6 +117,15 @@ class AwsDeploy:
         for output_info in stack_outputs:
             print("{} : {}".format(output_info.get('OutputKey'), output_info.get('OutputValue')) )
 
+    def save_stack_outputs(self):
+        '''
+        Saves the stack outputs into a JSON file
+        :return:
+        '''
+        print("Saving stack outputs to {}".format(CONFIG["output_save_location"]))
+        with open(CONFIG["output_save_location"], "w") as output_file:
+            json.dump(self.outputs, output_file, indent=2)
+
     def get_output_value(self, key):
         '''
         Finds the stack OutputValue for a given OutputKey
@@ -160,6 +171,7 @@ if __name__ == "__main__":
     if args.deployment:
         my_aws = AwsDeploy(args.deployment)
         my_aws.deploy_stacks()
+        my_aws.save_stack_outputs()
 
         # Copy S3 files
         print("")
